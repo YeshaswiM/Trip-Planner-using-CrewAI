@@ -20,10 +20,11 @@ def icon(emoji: str):
 
 class TripCrew:
 
-    def __init__(self, origin, cities, date_range, interests):
+    def __init__(self, origin, cities, date_range, interests, passengers=1):
         self.cities = cities
         self.origin = origin
         self.interests = interests
+        self.passengers = passengers
         # Convert date_range to string format for better handling
         self.date_range = f"{date_range[0].strftime('%Y-%m-%d')} to {date_range[1].strftime('%Y-%m-%d')}"
         self.output_placeholder = st.empty()
@@ -38,9 +39,25 @@ class TripCrew:
             agents = TripAgents(llm=self.llm)
             tasks = TripTasks()
 
+            # Parse dates from the date range
+            start_date = self.date_range.split(' to ')[0]
+            end_date = self.date_range.split(' to ')[1] if ' to ' in self.date_range else None
+
+            # Create agents
+            flight_search_agent = agents.flight_search_agent()
             city_selector_agent = agents.city_selection_agent()
             local_expert_agent = agents.local_expert()
             travel_concierge_agent = agents.travel_concierge()
+
+            # Create tasks - flight search comes first
+            flight_search_task = tasks.flight_search_task(
+                flight_search_agent,
+                self.origin,
+                self.cities,
+                start_date,
+                end_date,
+                passengers=self.passengers
+            )
 
             identify_task = tasks.identify_task(
                 city_selector_agent,
@@ -66,9 +83,9 @@ class TripCrew:
 
             crew = Crew(
                 agents=[
-                    city_selector_agent, local_expert_agent, travel_concierge_agent
+                    flight_search_agent, city_selector_agent, local_expert_agent, travel_concierge_agent
                 ],
-                tasks=[identify_task, gather_task, plan_task],
+                tasks=[flight_search_task, identify_task, gather_task, plan_task],
                 verbose=True
             )
 
@@ -105,6 +122,13 @@ if __name__ == "__main__":
                 value=(today, jan_16_next_year + datetime.timedelta(days=6)),
                 format="MM/DD/YYYY",
             )
+            passengers = st.number_input(
+                "Number of passengers?",
+                min_value=1,
+                max_value=9,
+                value=1,
+                step=1
+            )
             interests = st.text_area("High level interests and hobbies or extra details about your trip?",
                                      placeholder="2 adults who love swimming, dancing, hiking, and eating")
 
@@ -136,7 +160,7 @@ if submitted:
     with st.status("🤖 **Agents at work...**", state="running", expanded=True) as status:
         with st.container(height=500, border=False):
             sys.stdout = StreamToExpander(st)
-            trip_crew = TripCrew(location, cities, date_range, interests)
+            trip_crew = TripCrew(location, cities, date_range, interests, passengers)
             result = trip_crew.run()
         status.update(label="✅ Trip Plan Ready!",
                       state="complete", expanded=False)

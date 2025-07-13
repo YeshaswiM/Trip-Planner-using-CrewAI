@@ -7,6 +7,7 @@ from crewai import LLM
 from tools.browser_tools import BrowserTools
 from tools.calculator_tools import CalculatorTools
 from tools.search_tools import SearchTools
+from tools.flight_tools import FlightTools
 
 class TripAgents():
     def __init__(self, llm: BaseChatModel = None):
@@ -19,6 +20,21 @@ class TripAgents():
         self.search_tool = SearchTools()
         self.browser_tool = BrowserTools()
         self.calculator_tool = CalculatorTools()
+        self.flight_tools = FlightTools()
+
+    def flight_search_agent(self):
+        return Agent(
+            role='Flight Search Specialist',
+            goal='Find and compare the best flight options for travelers',
+            backstory="""Expert in finding flights across multiple airlines and booking platforms. 
+        Specializes in providing three distinct options: cheapest flights for budget travelers, 
+        recommended flights for best value, and premium flights for luxury travel. Uses real-time 
+        data from airline websites and booking platforms to ensure accurate pricing and availability.""",
+            tools=self.flight_tools.tools(),
+            allow_delegation=False,
+            llm=self.llm,
+            verbose=True
+        )
 
     def city_selection_agent(self):
         return Agent(
@@ -93,6 +109,9 @@ class StreamToExpander:
         if "City Selection Expert" in cleaned_data:
             cleaned_data = cleaned_data.replace("City Selection Expert", 
                                               f":{self.colors[self.color_index]}[City Selection Expert]")
+        if "Flight Search Specialist" in cleaned_data:
+            cleaned_data = cleaned_data.replace("Flight Search Specialist", 
+                                              f":{self.colors[self.color_index]}[Flight Search Specialist]")
         if "Local Expert at this city" in cleaned_data:
             cleaned_data = cleaned_data.replace("Local Expert at this city", 
                                               f":{self.colors[self.color_index]}[Local Expert at this city]")

@@ -9,6 +9,40 @@ class TripTasks():
             raise ValueError("All input parameters must be provided")
         return True
 
+    def flight_search_task(self, agent, origin, destination, departure_date, return_date=None, passengers=1):
+        return Task(description=dedent(f"""
+            Search for the best flight options from {origin} to {destination} 
+            for {passengers} passenger(s) departing on {departure_date}
+            {f'and returning on {return_date}' if return_date else '(one-way)'}. 
+            
+            You must provide exactly THREE flight options:
+            1. **CHEAPEST** - The most budget-friendly option
+            2. **RECOMMENDED** - Best value for money (balance of price and convenience)  
+            3. **PREMIUM** - High-end option with best comfort and flexibility
+            
+            For each option, include:
+            - Airline name
+            - Exact departure and arrival times
+            - Flight duration
+            - Number of stops
+            - Total price
+            - Key features (direct flight, flexible cancellation, etc.)
+            
+            Use real-time flight search tools to get current pricing and availability.
+            Present the results in a clear, organized format that helps travelers 
+            make informed decisions.
+            
+            {self.__tip_section()}
+            
+            Origin: {origin}
+            Destination: {destination}
+            Departure: {departure_date}
+            Return: {return_date if return_date else 'One-way'}
+            Passengers: {passengers}
+          """),
+            expected_output="Three categorized flight options (cheapest, recommended, premium) with detailed pricing and timing information.",
+            agent=agent)
+
     def identify_task(self, agent, origin, cities, interests, range):
         self.__validate_inputs(origin, cities, interests, range)
         return Task(description=dedent(f"""
