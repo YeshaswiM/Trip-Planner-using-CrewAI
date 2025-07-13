@@ -5,6 +5,7 @@ import streamlit as st
 import datetime
 import sys
 from langchain_openai import OpenAI
+from weave_logger import logger
 
 
 st.set_page_config(page_icon="✈️", layout="wide")
@@ -35,7 +36,16 @@ class TripCrew:
         # )
 
     def run(self):
+        crew_start_time = datetime.datetime.now()
+        
         try:
+            # Log crew execution start
+            logger.log_performance_metrics(
+                "crew_execution_start", 
+                0,
+                {"crew_type": "single_destination", "origin": self.origin, "destination": self.cities}
+            )
+            
             agents = TripAgents(llm=self.llm)
             tasks = TripTasks()
 
@@ -89,12 +99,174 @@ class TripCrew:
                 verbose=True
             )
 
+            # Execute crew and log performance
+            task_start_time = datetime.datetime.now()
             result = crew.kickoff()
+            task_end_time = datetime.datetime.now()
+            
+            # Log successful crew execution
+            logger.log_crew_execution(
+                crew_type="single_destination",
+                agents_count=4,
+                tasks_count=4,
+                start_time=crew_start_time,
+                end_time=task_end_time,
+                success=True,
+                destinations=[self.cities]
+            )
+            
+            # Log execution time metrics
+            execution_time = (task_end_time - task_start_time).total_seconds()
+            logger.log_performance_metrics(
+                "single_destination_execution_time",
+                execution_time,
+                {"origin": self.origin, "destination": self.cities, "passengers": self.passengers}
+            )
+            
             self.output_placeholder.markdown(result)
             return result
+            
         except Exception as e:
+            crew_end_time = datetime.datetime.now()
+            
+            # Log failed crew execution
+            logger.log_crew_execution(
+                crew_type="single_destination",
+                agents_count=4,
+                tasks_count=4,
+                start_time=crew_start_time,
+                end_time=crew_end_time,
+                success=False,
+                destinations=[self.cities]
+            )
+            
+            # Log the error
+            logger.log_error(
+                error_type="crew_execution_error",
+                error_message=str(e),
+                context={"origin": self.origin, "destination": self.cities, "passengers": self.passengers}
+            )
+            
             st.error(f"An error occurred: {str(e)}")
             return None
+
+
+class BucketListCrew:
+    
+    def __init__(self, origin, bucket_list, date_range, interests, passengers=1):
+        self.bucket_list = [dest.strip() for dest in bucket_list.split('\n') if dest.strip()]
+        self.origin = origin
+        self.interests = interests
+        self.passengers = passengers
+        self.date_range = f"{date_range[0].strftime('%Y-%m-%d')} to {date_range[1].strftime('%Y-%m-%d')}"
+        self.output_placeholder = st.empty()
+        self.llm = LLM(model="gemini/gemini-2.0-flash")
+        
+    def run(self):
+        """Initial weather analysis only - returns the analysis result."""
+        analysis_start_time = datetime.datetime.now()
+        
+        try:
+            # Log weather analysis start
+            logger.log_performance_metrics(
+                "weather_analysis_start",
+                0,
+                {"destinations_count": len(self.bucket_list), "destinations": self.bucket_list}
+            )
+            
+            result = self._analyze_destinations_weather()
+            analysis_end_time = datetime.datetime.now()
+            
+            # Log successful weather analysis
+            execution_time = (analysis_end_time - analysis_start_time).total_seconds()
+            logger.log_weather_analysis(
+                destinations=self.bucket_list,
+                analysis_result=result if result else "",
+                execution_time=execution_time,
+                success=True
+            )
+            
+            return result
+            
+        except Exception as e:
+            analysis_end_time = datetime.datetime.now()
+            execution_time = (analysis_end_time - analysis_start_time).total_seconds()
+            
+            # Log failed weather analysis
+            logger.log_weather_analysis(
+                destinations=self.bucket_list,
+                analysis_result="",
+                execution_time=execution_time,
+                success=False
+            )
+            
+            logger.log_error(
+                error_type="weather_analysis_error",
+                error_message=str(e),
+                context={"destinations": self.bucket_list, "origin": self.origin}
+            )
+            
+            st.error(f"An error occurred during weather analysis: {str(e)}")
+            return None
+    
+    def _analyze_destinations_weather(self):
+        """Analyze weather conditions for all bucket list destinations."""
+        agents = TripAgents(llm=self.llm)
+        tasks = TripTasks()
+        
+        # Create a weather analysis agent
+        weather_agent = agents.city_selection_agent()
+        
+        # Create analysis task
+        weather_task = tasks.identify_task(
+            weather_agent,
+            self.origin,
+            ", ".join(self.bucket_list),
+            f"Weather analysis and seasonal recommendations for bucket list destinations during {self.date_range}",
+            self.date_range
+        )
+        
+        # Run weather analysis
+        crew = Crew(
+            agents=[weather_agent],
+            tasks=[weather_task],
+            verbose=True
+        )
+        
+        with st.spinner("🌤️ Analyzing weather conditions for your bucket list destinations..."):
+            result = crew.kickoff()
+        
+        return result
+    
+    def _generate_multiple_plans(self, selected_destinations):
+        """Generate detailed plans for selected destinations."""
+        all_results = {}
+        
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        for i, destination in enumerate(selected_destinations):
+            status_text.text(f"Planning trip {i+1}/{len(selected_destinations)}: {destination}")
+            progress_bar.progress((i) / len(selected_destinations))
+            
+            # Create individual trip plan for this destination
+            with st.expander(f"🎯 Detailed Plan for {destination}", expanded=True):
+                trip_crew = TripCrew(
+                    self.origin, 
+                    destination, 
+                    [datetime.datetime.strptime(self.date_range.split(' to ')[0], '%Y-%m-%d').date(),
+                     datetime.datetime.strptime(self.date_range.split(' to ')[1], '%Y-%m-%d').date()],
+                    self.interests, 
+                    self.passengers
+                )
+                
+                result = trip_crew.run()
+                all_results[destination] = result
+        
+        progress_bar.progress(1.0)
+        status_text.text("✅ All trip plans completed!")
+        
+        return all_results
 
 
 if __name__ == "__main__":
@@ -110,12 +282,34 @@ if __name__ == "__main__":
     jan_16_next_year = datetime.date(next_year, 1, 10)
 
     with st.sidebar:
-        st.header("👇 Enter your trip details")
+        st.header("✈️ Choose Your Planning Mode")
+        
+        # Trip mode selection
+        trip_mode = st.radio(
+            "How would you like to plan your trip?",
+            options=["🎯 Single Destination", "� Bucket List (Multiple Destinations)"],
+            help="Choose single destination for focused planning or bucket list for multiple destinations"
+        )
+        
+        st.divider()
+        st.header("�👇 Enter your trip details")
+        
         with st.form("my_form"):
             location = st.text_input(
                 "Where are you currently located?", placeholder="San Mateo, CA")
-            cities = st.text_input(
-                "City and country are you interested in vacationing at?", placeholder="Bali, Indonesia")
+            
+            if trip_mode == "🎯 Single Destination":
+                cities = st.text_input(
+                    "City and country are you interested in vacationing at?", 
+                    placeholder="Bali, Indonesia")
+            else:
+                cities = st.text_area(
+                    "Enter your bucket list destinations (one per line):",
+                    placeholder="Bali, Indonesia\nTokyo, Japan\nParis, France\nSantorini, Greece",
+                    height=100,
+                    help="Enter each destination on a new line. We'll analyze all destinations and recommend the best options."
+                )
+            
             date_range = st.date_input(
                 "Date range you are interested in traveling?",
                 min_value=today,
@@ -132,7 +326,7 @@ if __name__ == "__main__":
             interests = st.text_area("High level interests and hobbies or extra details about your trip?",
                                      placeholder="2 adults who love swimming, dancing, hiking, and eating")
 
-            submitted = st.form_submit_button("Submit")
+            submitted = st.form_submit_button("🚀 Plan My Trip!")
 
         st.divider()
 
@@ -157,18 +351,30 @@ if __name__ == "__main__":
 
 
 if submitted:
-    with st.status("🤖 **Agents at work...**", state="running", expanded=True) as status:
-        with st.container(height=500, border=False):
-            sys.stdout = StreamToExpander(st)
-            trip_crew = TripCrew(location, cities, date_range, interests, passengers)
-            result = trip_crew.run()
-        status.update(label="✅ Trip Plan Ready!",
-                      state="complete", expanded=False)
+    # Log user input
+    logger.log_user_input(
+        trip_mode=trip_mode,
+        location=location,
+        cities=cities,
+        date_range=date_range,
+        interests=interests,
+        passengers=passengers
+    )
+    
+    if trip_mode == "🎯 Single Destination":
+        # Single destination mode
+        with st.status("🤖 **Agents at work...**", state="running", expanded=True) as status:
+            with st.container(height=500, border=False):
+                sys.stdout = StreamToExpander(st)
+                trip_crew = TripCrew(location, cities, date_range, interests, passengers)
+                result = trip_crew.run()
+            status.update(label="✅ Trip Plan Ready!",
+                          state="complete", expanded=False)
 
-    # Add download buttons ABOVE the trip plan
-    if result:
-        # Create a formatted version of the trip plan for download
-        trip_plan_content = f"""
+        # Add download buttons ABOVE the trip plan
+        if result:
+            # Create a formatted version of the trip plan for download
+            trip_plan_content = f"""
 # 🏖️ VacAIgent Trip Plan
 
 **Generated on:** {datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}
@@ -188,7 +394,7 @@ if submitted:
 
 *This trip plan was generated by VacAIgent - AI-powered travel planning*
 *Visit us at: Your VacAIgent App*
-        """
+            """
         
         # Create PDF content
         def create_pdf(content):
@@ -290,5 +496,164 @@ if submitted:
         
         st.divider()
 
-    st.subheader("Here is your Trip Plan", anchor=False, divider="rainbow")
-    st.markdown(result)
+        st.subheader("Here is your Trip Plan", anchor=False, divider="rainbow")
+        st.markdown(result)
+    
+    else:
+        # Bucket list mode
+        st.header("🌍 Bucket List Trip Planning", anchor=False)
+        
+        # Parse bucket list
+        bucket_destinations = [dest.strip() for dest in cities.split('\n') if dest.strip()]
+        st.markdown(f"**Planning for {len(bucket_destinations)} destinations from your bucket list:**")
+        
+        # Display the destinations as a nice list
+        for i, dest in enumerate(bucket_destinations, 1):
+            st.markdown(f"{i}. {dest}")
+        
+        st.divider()
+        
+        # Initialize bucket list crew
+        bucket_list_crew = BucketListCrew(location, cities, date_range, interests, passengers)
+        
+        # Weather analysis phase
+        with st.status("🌤️ **Analyzing weather conditions...**", state="running", expanded=True) as status:
+            with st.container(height=400, border=False):
+                sys.stdout = StreamToExpander(st)
+                weather_analysis = bucket_list_crew.run()
+            status.update(label="✅ Weather Analysis Complete!",
+                          state="complete", expanded=False)
+        
+        # Display weather analysis results
+        if weather_analysis:
+            st.subheader("🌤️ Weather-Based Destination Ranking", anchor=False, divider="blue")
+            st.markdown(weather_analysis)
+            
+            st.divider()
+            
+            # Let user choose destinations for detailed planning
+            st.subheader("🎯 Choose Destinations for Detailed Planning", anchor=False)
+            selected_destinations = st.multiselect(
+                "Select destinations you'd like detailed trip plans for:",
+                options=bucket_destinations,
+                default=bucket_destinations[:min(3, len(bucket_destinations))],
+                help="We recommend selecting 2-3 destinations for detailed planning to get comprehensive trip plans."
+            )
+            
+            # Add planning options with buttons
+            st.markdown("### 🗺️ Planning Options")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if selected_destinations:
+                    generate_selected = st.button(
+                        f"🎯 Generate Plans for Selected ({len(selected_destinations)})",
+                        type="primary",
+                        help=f"Generate detailed plans for: {', '.join(selected_destinations)}"
+                    )
+                else:
+                    st.button(
+                        "🎯 Generate Plans for Selected (0)",
+                        disabled=True,
+                        help="Please select at least one destination first"
+                    )
+                    generate_selected = False
+            
+            with col2:
+                generate_all = st.button(
+                    f"🌍 Generate Plans for ALL ({len(bucket_destinations)})",
+                    type="secondary",
+                    help=f"Generate detailed plans for all destinations: {', '.join(bucket_destinations)}"
+                )
+            
+            # Execute based on user choice
+            if generate_selected and selected_destinations:
+                destinations_to_plan = selected_destinations
+                plan_title = f"🎯 Selected Destinations ({len(selected_destinations)})"
+            elif generate_all:
+                destinations_to_plan = bucket_destinations
+                plan_title = f"🌍 All Bucket List Destinations ({len(bucket_destinations)})"
+            else:
+                destinations_to_plan = None
+                plan_title = None
+            
+            if destinations_to_plan:
+                # Generate detailed plans
+                st.subheader("🗺️ Detailed Trip Plans", anchor=False, divider="green")
+                st.markdown(f"**{plan_title}**")
+                
+                if len(destinations_to_plan) > 3:
+                    st.warning(f"⏱️ Generating plans for {len(destinations_to_plan)} destinations may take several minutes. Please be patient!")
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                for i, destination in enumerate(destinations_to_plan):
+                        status_text.text(f"Generating plan {i+1}/{len(selected_destinations)}: {destination}")
+                        progress_bar.progress(i / len(selected_destinations))
+                        
+                        # Create individual trip plan for this destination
+                        with st.expander(f"✈️ Complete Trip Plan: {destination}", expanded=True):
+                            with st.status(f"🤖 **Planning {destination}...**", state="running", expanded=True) as plan_status:
+                                with st.container(height=300, border=False):
+                                    sys.stdout = StreamToExpander(st)
+                                    trip_crew = TripCrew(
+                                        location, 
+                                        destination, 
+                                        date_range,
+                                        interests, 
+                                        passengers
+                                    )
+                                    result = trip_crew.run()
+                                plan_status.update(label=f"✅ {destination} Plan Ready!",
+                                                  state="complete", expanded=False)
+                            
+                            # Display the plan
+                            if result:
+                                st.markdown(result)
+                                
+                                # Add download option for this destination
+                                destination_plan_content = f"""
+# 🏖️ VacAIgent Trip Plan - {destination}
+
+**Generated on:** {datetime.datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+
+**Trip Details:**
+- **Origin:** {location}
+- **Destination:** {destination}
+- **Travel Dates:** {date_range[0].strftime('%B %d, %Y')} to {date_range[1].strftime('%B %d, %Y')}
+- **Passengers:** {passengers}
+- **Interests:** {interests}
+
+---
+
+{result}
+
+---
+
+*This trip plan was generated by VacAIgent - AI-powered travel planning*
+                                """
+                                
+                                col1, col2 = st.columns(2)
+                                with col1:
+                                    st.download_button(
+                                        label=f"📄 Download {destination} Plan",
+                                        data=destination_plan_content,
+                                        file_name=f"VacAIgent_{destination.replace(' ', '_').replace(',', '')}_{date_range[0].strftime('%Y%m%d')}.md",
+                                        mime="text/markdown",
+                                        key=f"download_{destination}"
+                                    )
+                                with col2:
+                                    if st.button(f"📋 Copy {destination} Plan", key=f"copy_{destination}"):
+                                        st.code(destination_plan_content, language="markdown")
+                                        st.success(f"{destination} plan copied!")
+                
+                progress_bar.progress(1.0)
+                status_text.text("✅ All detailed trip plans completed!")
+                
+                st.success(f"🎉 Your {len(destinations_to_plan)} trip plans are ready! Scroll up to view each destination's detailed plan.")
+            else:
+                st.info("💡 **Tip:** You can either select specific destinations or generate plans for all destinations at once!")
+        else:
+            st.error("Weather analysis failed. Please try again.")

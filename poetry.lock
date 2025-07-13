@@ -888,6 +888,18 @@ files = [
 ]
 
 [[package]]
+name = "diskcache"
+version = "5.6.3"
+description = "Disk Cache -- Disk and file backed persistent cache."
+optional = false
+python-versions = ">=3"
+groups = ["main"]
+files = [
+    {file = "diskcache-5.6.3-py3-none-any.whl", hash = "sha256:5e31b2d5fbad117cc363ebaf6b689474db18a1f6438bc82358b024abd4c2ca19"},
+    {file = "diskcache-5.6.3.tar.gz", hash = "sha256:2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc"},
+]
+
+[[package]]
 name = "distlib"
 version = "0.3.9"
 description = "Distribution utilities"
@@ -961,6 +973,21 @@ files = [
     {file = "et_xmlfile-2.0.0-py3-none-any.whl", hash = "sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa"},
     {file = "et_xmlfile-2.0.0.tar.gz", hash = "sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54"},
 ]
+
+[[package]]
+name = "eval-type-backport"
+version = "0.2.2"
+description = "Like `typing._eval_type`, but lets older Python versions use newer typing features."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "eval_type_backport-0.2.2-py3-none-any.whl", hash = "sha256:cb6ad7c393517f476f96d456d0412ea80f0a8cf96f6892834cd9340149111b0a"},
+    {file = "eval_type_backport-0.2.2.tar.gz", hash = "sha256:f0576b4cf01ebb5bd358d02314d31846af5e07678387486e2c798af0e7d849c1"},
+]
+
+[package.extras]
+tests = ["pytest"]
 
 [[package]]
 name = "exa-py"
@@ -1431,6 +1458,50 @@ protobuf = ">=3.20.2,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4
 
 [package.extras]
 grpc = ["grpcio (>=1.44.0,<2.0.0)"]
+
+[[package]]
+name = "gql"
+version = "3.5.3"
+description = "GraphQL client for Python"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "gql-3.5.3-py2.py3-none-any.whl", hash = "sha256:e1fcbde2893fcafdd28114ece87ff47f1cc339a31db271fc4e1d528f5a1d4fbc"},
+    {file = "gql-3.5.3.tar.gz", hash = "sha256:393b8c049d58e0d2f5461b9d738a2b5f904186a40395500b4a84dd092d56e42b"},
+]
+
+[package.dependencies]
+aiohttp = {version = ">=3.9.0b0,<4", optional = true, markers = "python_version > \"3.11\" and extra == \"aiohttp\""}
+anyio = ">=3.0,<5"
+backoff = ">=1.11.1,<3.0"
+graphql-core = ">=3.2,<3.2.7"
+requests = {version = ">=2.26,<3", optional = true, markers = "extra == \"requests\""}
+requests-toolbelt = {version = ">=1.0.0,<2", optional = true, markers = "extra == \"requests\""}
+yarl = ">=1.6,<2.0"
+
+[package.extras]
+aiohttp = ["aiohttp (>=3.8.0,<4) ; python_version <= \"3.11\"", "aiohttp (>=3.9.0b0,<4) ; python_version > \"3.11\""]
+all = ["aiohttp (>=3.8.0,<4) ; python_version <= \"3.11\"", "aiohttp (>=3.9.0b0,<4) ; python_version > \"3.11\"", "botocore (>=1.21,<2)", "httpx (>=0.23.1,<1)", "requests (>=2.26,<3)", "requests-toolbelt (>=1.0.0,<2)", "websockets (>=10,<12)"]
+botocore = ["botocore (>=1.21,<2)"]
+dev = ["aiofiles", "aiohttp (>=3.8.0,<4) ; python_version <= \"3.11\"", "aiohttp (>=3.9.0b0,<4) ; python_version > \"3.11\"", "black (==22.3.0)", "botocore (>=1.21,<2)", "check-manifest (>=0.42,<1)", "flake8 (==3.8.1)", "httpx (>=0.23.1,<1)", "isort (==4.3.21)", "mock (==4.0.2)", "mypy (==0.910)", "parse (==1.15.0)", "pytest (==7.4.2)", "pytest-asyncio (==0.21.1)", "pytest-console-scripts (==1.3.1)", "pytest-cov (==3.0.0)", "requests (>=2.26,<3)", "requests-toolbelt (>=1.0.0,<2)", "sphinx (>=5.3.0,<6)", "sphinx-argparse (==0.2.5)", "sphinx-rtd-theme (>=0.4,<1)", "types-aiofiles", "types-mock", "types-requests", "vcrpy (==4.4.0) ; python_version <= \"3.8\"", "vcrpy (==7.0.0) ; python_version > \"3.8\"", "websockets (>=10,<12)"]
+httpx = ["httpx (>=0.23.1,<1)"]
+requests = ["requests (>=2.26,<3)", "requests-toolbelt (>=1.0.0,<2)"]
+test = ["aiofiles", "aiohttp (>=3.8.0,<4) ; python_version <= \"3.11\"", "aiohttp (>=3.9.0b0,<4) ; python_version > \"3.11\"", "botocore (>=1.21,<2)", "httpx (>=0.23.1,<1)", "mock (==4.0.2)", "parse (==1.15.0)", "pytest (==7.4.2)", "pytest-asyncio (==0.21.1)", "pytest-console-scripts (==1.3.1)", "pytest-cov (==3.0.0)", "requests (>=2.26,<3)", "requests-toolbelt (>=1.0.0,<2)", "vcrpy (==4.4.0) ; python_version <= \"3.8\"", "vcrpy (==7.0.0) ; python_version > \"3.8\"", "websockets (>=10,<12)"]
+test-no-transport = ["aiofiles", "mock (==4.0.2)", "parse (==1.15.0)", "pytest (==7.4.2)", "pytest-asyncio (==0.21.1)", "pytest-console-scripts (==1.3.1)", "pytest-cov (==3.0.0)", "vcrpy (==4.4.0) ; python_version <= \"3.8\"", "vcrpy (==7.0.0) ; python_version > \"3.8\""]
+websockets = ["websockets (>=10,<12)"]
+
+[[package]]
+name = "graphql-core"
+version = "3.2.6"
+description = "GraphQL implementation for Python, a port of GraphQL.js, the JavaScript reference implementation for GraphQL."
+optional = false
+python-versions = "<4,>=3.6"
+groups = ["main"]
+files = [
+    {file = "graphql_core-3.2.6-py3-none-any.whl", hash = "sha256:78b016718c161a6fb20a7d97bbf107f331cd1afe53e45566c59f776ed7f0b45f"},
+    {file = "graphql_core-3.2.6.tar.gz", hash = "sha256:c08eec22f9e40f0bd61d805907e3b3b1b9a320bc606e23dc145eebca07c8fbab"},
+]
 
 [[package]]
 name = "greenlet"
@@ -5474,6 +5545,63 @@ files = [
 pyasn1 = ">=0.1.3"
 
 [[package]]
+name = "sentry-sdk"
+version = "2.32.0"
+description = "Python client for Sentry (https://sentry.io)"
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "sentry_sdk-2.32.0-py2.py3-none-any.whl", hash = "sha256:6cf51521b099562d7ce3606da928c473643abe99b00ce4cb5626ea735f4ec345"},
+    {file = "sentry_sdk-2.32.0.tar.gz", hash = "sha256:9016c75d9316b0f6921ac14c8cd4fb938f26002430ac5be9945ab280f78bec6b"},
+]
+
+[package.dependencies]
+certifi = "*"
+urllib3 = ">=1.26.11"
+
+[package.extras]
+aiohttp = ["aiohttp (>=3.5)"]
+anthropic = ["anthropic (>=0.16)"]
+arq = ["arq (>=0.23)"]
+asyncpg = ["asyncpg (>=0.23)"]
+beam = ["apache-beam (>=2.12)"]
+bottle = ["bottle (>=0.12.13)"]
+celery = ["celery (>=3)"]
+celery-redbeat = ["celery-redbeat (>=2)"]
+chalice = ["chalice (>=1.16.0)"]
+clickhouse-driver = ["clickhouse-driver (>=0.2.0)"]
+django = ["django (>=1.8)"]
+falcon = ["falcon (>=1.4)"]
+fastapi = ["fastapi (>=0.79.0)"]
+flask = ["blinker (>=1.1)", "flask (>=0.11)", "markupsafe"]
+grpcio = ["grpcio (>=1.21.1)", "protobuf (>=3.8.0)"]
+http2 = ["httpcore[http2] (==1.*)"]
+httpx = ["httpx (>=0.16.0)"]
+huey = ["huey (>=2)"]
+huggingface-hub = ["huggingface_hub (>=0.22)"]
+langchain = ["langchain (>=0.0.210)"]
+launchdarkly = ["launchdarkly-server-sdk (>=9.8.0)"]
+litestar = ["litestar (>=2.0.0)"]
+loguru = ["loguru (>=0.5)"]
+openai = ["openai (>=1.0.0)", "tiktoken (>=0.3.0)"]
+openfeature = ["openfeature-sdk (>=0.7.1)"]
+opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
+opentelemetry-experimental = ["opentelemetry-distro"]
+pure-eval = ["asttokens", "executing", "pure_eval"]
+pymongo = ["pymongo (>=3.1)"]
+pyspark = ["pyspark (>=2.4.4)"]
+quart = ["blinker (>=1.1)", "quart (>=0.16.1)"]
+rq = ["rq (>=0.6)"]
+sanic = ["sanic (>=0.8)"]
+sqlalchemy = ["sqlalchemy (>=1.2)"]
+starlette = ["starlette (>=0.19.1)"]
+starlite = ["starlite (>=1.48)"]
+statsig = ["statsig (>=0.55.3)"]
+tornado = ["tornado (>=6)"]
+unleash = ["UnleashClient (>=6.0.1)"]
+
+[[package]]
 name = "shellingham"
 version = "1.5.4"
 description = "Tool to Detect Surrounding Shell"
@@ -6265,6 +6393,52 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2,!=7.3)", "s
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8) ; platform_python_implementation == \"PyPy\" or platform_python_implementation == \"GraalVM\" or platform_python_implementation == \"CPython\" and sys_platform == \"win32\" and python_version >= \"3.13\"", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10) ; platform_python_implementation == \"CPython\""]
 
 [[package]]
+name = "wandb"
+version = "0.21.0"
+description = "A CLI and library for interacting with the Weights & Biases API."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "wandb-0.21.0-py3-none-any.whl", hash = "sha256:316e8cd4329738f7562f7369e6eabeeb28ef9d473203f7ead0d03e5dba01c90d"},
+    {file = "wandb-0.21.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:701d9cbdfcc8550a330c1b54a26f1585519180e0f19247867446593d34ace46b"},
+    {file = "wandb-0.21.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:01689faa6b691df23ba2367e0a1ecf6e4d0be44474905840098eedd1fbcb8bdf"},
+    {file = "wandb-0.21.0-py3-none-macosx_11_0_x86_64.whl", hash = "sha256:55d3f42ddb7971d1699752dff2b85bcb5906ad098d18ab62846c82e9ce5a238d"},
+    {file = "wandb-0.21.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:893508f0c7da48917448daa5cd622c27ce7ce15119adaa861185034c2bd7b14c"},
+    {file = "wandb-0.21.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a4e8245a8912247ddf7654f7b5330f583a6c56ab88fee65589158490d583c57d"},
+    {file = "wandb-0.21.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:2e4c4f951e0d02755e315679bfdcb5bc38c1b02e2e5abc5432b91a91bb0cf246"},
+    {file = "wandb-0.21.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:873749966eeac0069e0e742e6210641b6227d454fb1dae2cf5c437c6ed42d3ca"},
+    {file = "wandb-0.21.0-py3-none-win32.whl", hash = "sha256:9d3cccfba658fa011d6cab9045fa4f070a444885e8902ae863802549106a5dab"},
+    {file = "wandb-0.21.0-py3-none-win_amd64.whl", hash = "sha256:28a0b2dad09d7c7344ac62b0276be18a2492a5578e4d7c84937a3e1991edaac7"},
+    {file = "wandb-0.21.0.tar.gz", hash = "sha256:473e01ef200b59d780416062991effa7349a34e51425d4be5ff482af2dc39e02"},
+]
+
+[package.dependencies]
+click = ">=7.1,<8.0.0 || >8.0.0"
+gitpython = ">=1.0.0,<3.1.29 || >3.1.29"
+packaging = "*"
+platformdirs = "*"
+protobuf = {version = ">=3.19.0,<4.21.0 || >4.21.0,<5.28.0 || >5.28.0,<7", markers = "python_version > \"3.9\" or sys_platform != \"linux\""}
+pydantic = "<3"
+pyyaml = "*"
+requests = ">=2.0.0,<3"
+sentry-sdk = ">=2.0.0"
+typing-extensions = ">=4.8,<5"
+
+[package.extras]
+aws = ["boto3", "botocore (>=1.5.76)"]
+azure = ["azure-identity", "azure-storage-blob"]
+gcp = ["google-cloud-storage"]
+importers = ["filelock", "mlflow", "polars (<=1.2.1)", "rich", "tenacity"]
+kubeflow = ["google-cloud-storage", "kubernetes", "minio", "sh"]
+launch = ["awscli", "azure-containerregistry", "azure-identity", "azure-storage-blob", "boto3", "botocore (>=1.5.76)", "chardet", "google-auth", "google-cloud-aiplatform", "google-cloud-artifact-registry", "google-cloud-compute", "google-cloud-storage", "iso8601", "jsonschema", "kubernetes", "kubernetes-asyncio", "nbconvert", "nbformat", "optuna", "pydantic", "pyyaml (>=6.0.0)", "tomli", "tornado (>=6.5.0) ; python_version >= \"3.9\"", "typing-extensions"]
+media = ["bokeh", "imageio (>=2.28.1)", "moviepy (>=1.0.0)", "numpy", "pillow", "plotly (>=5.18.0)", "rdkit", "soundfile"]
+models = ["cloudpickle"]
+perf = ["orjson"]
+sweeps = ["sweeps (>=0.2.0)"]
+workspaces = ["wandb-workspaces"]
+
+[[package]]
 name = "watchdog"
 version = "6.0.0"
 description = "Filesystem events monitoring"
@@ -6437,6 +6611,70 @@ files = [
     {file = "wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"},
     {file = "wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"},
 ]
+
+[[package]]
+name = "weave"
+version = "0.51.56"
+description = "A toolkit for building composable interactive data driven applications."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "weave-0.51.56-py3-none-any.whl", hash = "sha256:1f2531e1a8263902e04b559810346c818da9946ab9eaafc0c11712187df22496"},
+    {file = "weave-0.51.56.tar.gz", hash = "sha256:63096587ee3800b8a21ebccecf571b895af7c1252c4eb1c5d11b56ce3c506cd7"},
+]
+
+[package.dependencies]
+click = "*"
+diskcache = "5.6.3"
+eval-type-backport = "*"
+gql = {version = "*", extras = ["aiohttp", "requests"]}
+jsonschema = ">=4.23.0"
+nest-asyncio = "1.6.0"
+packaging = ">=21.0"
+pydantic = ">=2.0.0"
+rich = "*"
+sentry-sdk = ">=2.0.0,<3.0.0"
+tenacity = ">=8.3.0,<8.4.0 || >8.4.0"
+wandb = ">=0.17.1"
+
+[package.extras]
+anthropic = ["anthropic (>=0.18.0)"]
+autogen = ["autogen-agentchat (>=0.5.7)"]
+autogen-tests = ["autogen-agentchat (>=0.5.7)", "autogen-ext[openai] (>=0.5.7)"]
+bedrock = ["boto3", "moto[bedrock] (>=5.0.24)"]
+cerebras = ["cerebras-cloud-sdk"]
+cohere = ["cohere (>=5.9.1,<5.9.3)"]
+crewai = ["crewai (>=0.100.1,<=0.108.0)", "crewai-tools (>=0.38.0)"]
+dev = ["python-multipart", "tomlkit"]
+docs = ["azure-storage-blob (>=12.24.0)", "boto3 (>=1.34.0)", "ddtrace (>=2.7.0)", "emoji (>=2.12.1)", "google-cloud-storage (>=2.7.0)", "lazydocs", "litellm (>=1.36.1)", "nbconvert", "nbformat", "openinference-semantic-conventions (>=0.1.17)", "opentelemetry-proto (>=1.12.0)", "opentelemetry-semantic-conventions-ai (>=0.4.3)", "playwright"]
+dspy = ["dspy (>=2.6.27)"]
+google-ai-studio = ["google-generativeai (>=0.8.3)"]
+google-genai = ["google-genai (>=1.0.0,<=1.23.0)", "pillow (>=11.1.0)"]
+groq = ["groq (>=0.13.0)"]
+huggingface = ["huggingface-hub (>=0.28.1)"]
+instructor = ["google-genai (>=1.5.0)", "instructor (>=1.4.3) ; python_version > \"3.9\"", "instructor (>=1.4.3,<1.7.0) ; python_version <= \"3.9\""]
+langchain = ["chromadb (>=0.5.0)", "langchain-anthropic (>=0.3.15)", "langchain-community (>=0.2.1)", "langchain-core (>=0.2.1)", "langchain-google-genai (>=2.1.5)", "langchain-google-vertexai (>=2.0.24)", "langchain-openai (>=0.1.7)", "openai (<1.92.0)", "opentelemetry-exporter-otlp", "pysqlite3"]
+langchain-nvidia-ai-endpoints = ["langchain-core (>=0.2.1)", "langchain-nvidia-ai-endpoints"]
+litellm = ["litellm (>=1.36.1)"]
+llamaindex = ["llama-index (>=0.10.35)", "openai (<1.92.0)"]
+mcp = ["mcp[cli] (>=1.6.0,<1.10.0)"]
+mistral = ["mistralai (>=1.0.0)"]
+modal = ["modal", "python-dotenv"]
+notdiamond = ["litellm (<=1.49.1)", "notdiamond (>=0.3.21)"]
+openai = ["openai (>=1.0.0,<1.92.0)"]
+openai-agents = ["openai-agents (>=0.0.4)"]
+pandas-test = ["pandas (>=2.2.3)"]
+presidio = ["presidio-analyzer (==2.2.357)", "presidio-anonymizer (==2.2.357)"]
+scorers = ["levenshtein (>=0.26.0)", "litellm (>=1.58)", "numpy (>1.21.0)", "pip (>=20.0)", "presidio-analyzer (>=2.2.0)", "presidio-anonymizer (>=2.2.0)", "scikit-learn (>=1.5.2)", "sentence-transformers (>=3.3.1)", "sentencepiece (>=0.2.0)", "torch (>=2.4.1)", "transformers (>=4.51.1)"]
+smolagents = ["huggingface-hub (>=0.28.1)", "litellm (>=1.58)", "openai (>=1.0.0)", "smolagents (>=1.17.0,<1.19.0)", "sqlalchemy (>=2.0.38)"]
+test = ["azure-storage-blob (>=12.24.0)", "boto3 (>=1.34.0)", "clickhouse-connect (==0.7.0)", "confluent-kafka", "ddtrace (>=2.7.0)", "emoji (>=2.12.1)", "fastapi (>=0.110.0)", "filelock", "flask", "freezegun", "google-cloud-storage (>=2.7.0)", "httpx", "litellm (>=1.36.1)", "moto[s3] (>=5.0.0)", "moviepy (<=1.0.3)", "nox", "openinference-semantic-conventions (>=0.1.17)", "opentelemetry-proto (>=1.12.0)", "opentelemetry-semantic-conventions-ai (>=0.4.3)", "pillow", "pytest (>=8.2.0)", "pytest-asyncio (>=0.23.6)", "pytest-cov (>=5.0.0)", "pytest-recording (>=0.13.2)", "pytest-rerunfailures (>=12.0)", "pytest-rerunfailures (>=14.0)", "pytest-shard (==0.1.2)", "pytest-xdist (>=3.1.0)", "sqlparse (==0.5.0)", "uvicorn (>=0.27.0)", "vcrpy (>=7.0.0)"]
+trace-server = ["azure-storage-blob (>=12.24.0)", "boto3 (>=1.34.0)", "ddtrace (>=2.7.0)", "emoji (>=2.12.1)", "google-cloud-storage (>=2.7.0)", "litellm (>=1.36.1)", "openinference-semantic-conventions (>=0.1.17)", "opentelemetry-proto (>=1.12.0)", "opentelemetry-semantic-conventions-ai (>=0.4.3)"]
+trace-server-tests = ["moto[s3] (>=5.0.0)"]
+verdict = ["verdict (>=0.2.3)"]
+vertexai = ["shapely (<=2.0.6)", "vertexai (>=1.70.0)"]
+video-support = ["moviepy (<=1.0.3)"]
+wandb = ["wandb (>=0.17.1)"]
 
 [[package]]
 name = "webencodings"
@@ -6890,4 +7128,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.14"
-content-hash = "e3a10915576040abe88729fdfbe6103a34fc7168f74be39c1d8502c8be555b6b"
+content-hash = "0e0db9efcc800f14294e698dd9c6d97d2c322d5f43b6af572f4fe627a56c892f"
