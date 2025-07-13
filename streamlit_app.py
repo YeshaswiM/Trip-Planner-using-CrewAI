@@ -5,7 +5,7 @@ import streamlit as st
 import datetime
 import sys
 from langchain_openai import OpenAI
-from weave_logger import logger
+from weave_logger_new import logger
 
 
 st.set_page_config(page_icon="✈️", layout="wide")
@@ -104,7 +104,12 @@ class TripCrew:
             result = crew.kickoff()
             task_end_time = datetime.datetime.now()
             
-            # Log successful crew execution
+            # Debug the result
+            print(f"🔍 CREW RESULT TYPE: {type(result)}")
+            print(f"🔍 CREW RESULT LENGTH: {len(str(result)) if result else 0}")
+            print(f"🔍 CREW RESULT PREVIEW: {str(result)[:200] if result else 'NO RESULT'}")
+            
+            # Log successful crew execution WITH the result
             logger.log_crew_execution(
                 crew_type="single_destination",
                 agents_count=4,
@@ -112,7 +117,8 @@ class TripCrew:
                 start_time=crew_start_time,
                 end_time=task_end_time,
                 success=True,
-                destinations=[self.cities]
+                destinations=[self.cities],
+                result=str(result)  # Pass the actual result
             )
             
             # Log execution time metrics
@@ -233,8 +239,27 @@ class BucketListCrew:
             verbose=True
         )
         
+        crew_start_time = datetime.datetime.now()
         with st.spinner("🌤️ Analyzing weather conditions for your bucket list destinations..."):
             result = crew.kickoff()
+        crew_end_time = datetime.datetime.now()
+        
+        # Debug the weather analysis result
+        print(f"🔍 WEATHER ANALYSIS RESULT TYPE: {type(result)}")
+        print(f"🔍 WEATHER ANALYSIS RESULT LENGTH: {len(str(result)) if result else 0}")
+        print(f"🔍 WEATHER ANALYSIS RESULT PREVIEW: {str(result)[:200] if result else 'NO RESULT'}")
+        
+        # Log the weather analysis crew execution
+        logger.log_crew_execution(
+            crew_type="weather_analysis",
+            agents_count=1,
+            tasks_count=1,
+            start_time=crew_start_time,
+            end_time=crew_end_time,
+            success=result is not None,
+            destinations=self.bucket_list,
+            result=str(result) if result else None
+        )
         
         return result
     
@@ -590,8 +615,8 @@ if submitted:
                 status_text = st.empty()
                 
                 for i, destination in enumerate(destinations_to_plan):
-                        status_text.text(f"Generating plan {i+1}/{len(selected_destinations)}: {destination}")
-                        progress_bar.progress(i / len(selected_destinations))
+                        status_text.text(f"Generating plan {i+1}/{len(destinations_to_plan)}: {destination}")
+                        progress_bar.progress(i / len(destinations_to_plan))
                         
                         # Create individual trip plan for this destination
                         with st.expander(f"✈️ Complete Trip Plan: {destination}", expanded=True):

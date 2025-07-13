@@ -29,12 +29,30 @@ class VacAIgentLogger:
         return f"session_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     def _safe_log(self, data: Dict[str, Any], event_type: str) -> None:
-        """Simple file logging only."""
+        """Simple file logging with better data handling."""
         try:
             self._ensure_log_directory()
             timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+            
+            # Better handling of data for debugging
+            clean_data = {}
+            for key, value in data.items():
+                if value is None:
+                    clean_data[key] = "NULL"
+                elif value == "":
+                    clean_data[key] = "EMPTY"
+                elif isinstance(value, str) and len(value) > 300:
+                    clean_data[key] = value[:300] + "..."
+                else:
+                    clean_data[key] = value
+            
+            # Write to log file
             with open(self.log_file, 'a') as f:
-                f.write(f"{timestamp} - {event_type}: {str(data)[:200]}\n")
+                f.write(f"{timestamp} - {event_type}: {json.dumps(clean_data, indent=2)}\n")
+                
+            # Also print to console for debugging
+            print(f"📝 LOG [{event_type}]: {clean_data}")
+                
         except Exception as e:
             print(f"⚠️ Logging failed: {str(e)}")
 
@@ -50,27 +68,75 @@ class VacAIgentLogger:
     def log_agent_execution(self, agent_name: str, task_description: str, 
                            start_time: datetime.datetime, end_time: datetime.datetime,
                            success: bool, output: str = None, error: str = None) -> None:
-        """Log agent execution."""
+        """Log agent execution with detailed output tracking."""
+        duration = (end_time - start_time).total_seconds() if start_time and end_time else 0
+        
+        # Debug the actual output
+        print(f"🔍 DEBUG - Agent {agent_name} output: {type(output)} - {len(str(output)) if output else 0} chars")
+        if output:
+            print(f"🔍 DEBUG - Output preview: {str(output)[:100]}...")
+        
         self._safe_log({
             "agent": agent_name,
-            "success": success
+            "task": task_description[:50] if task_description else "NO_TASK",
+            "duration_sec": round(duration, 2),
+            "success": success,
+            "output_length": len(str(output)) if output else 0,
+            "output_preview": str(output)[:150] if output else "NULL_OUTPUT",
+            "has_output": output is not None,
+            "error": str(error)[:100] if error else None
         }, "agent_execution")
 
     def log_crew_execution(self, crew_type: str, agents_count: int, tasks_count: int,
                           start_time: datetime.datetime, end_time: datetime.datetime,
-                          success: bool, destinations: List[str] = None) -> None:
-        """Log crew execution."""
+                          success: bool, destinations: List[str] = None, result: str = None) -> None:
+        """Log crew execution with detailed result tracking."""
+        duration = (end_time - start_time).total_seconds() if start_time and end_time else 0
+        
+        # Debug the crew result
+        print(f"🔍 DEBUG - Crew {crew_type} result: {type(result)} - {len(str(result)) if result else 0} chars")
+        if result:
+            print(f"🔍 DEBUG - Result preview: {str(result)[:100]}...")
+        else:
+            print(f"⚠️ WARNING - Crew {crew_type} returned NULL result!")
+        
+        # More detailed result analysis
+        result_info = {
+            "has_result": result is not None,
+            "result_type": str(type(result)),
+            "result_length": len(str(result)) if result else 0,
+            "result_empty": result == "" if result is not None else True,
+            "result_preview": str(result)[:150] if result else "NULL_RESULT"
+        }
+        
         self._safe_log({
             "crew_type": crew_type,
-            "success": success
+            "agents_count": agents_count,
+            "tasks_count": tasks_count,
+            "duration_sec": round(duration, 2),
+            "success": success,
+            "destinations": destinations if destinations else [],
+            **result_info  # Unpack the detailed result info
         }, "crew_execution")
 
     def log_weather_analysis(self, destinations: List[str], analysis_result: str,
                            execution_time: float, success: bool) -> None:
-        """Log weather analysis."""
+        """Log weather analysis with detailed result tracking."""
+        
+        # Debug the weather analysis result
+        print(f"🔍 DEBUG - Weather analysis result: {type(analysis_result)} - {len(str(analysis_result)) if analysis_result else 0} chars")
+        if analysis_result:
+            print(f"🔍 DEBUG - Weather result preview: {str(analysis_result)[:100]}...")
+        else:
+            print(f"⚠️ WARNING - Weather analysis returned NULL result!")
+        
         self._safe_log({
             "destinations": destinations,
-            "success": success
+            "success": success,
+            "execution_time": round(execution_time, 2),
+            "result_length": len(str(analysis_result)) if analysis_result else 0,
+            "result_preview": str(analysis_result)[:150] if analysis_result else "NULL_RESULT",
+            "has_result": analysis_result is not None
         }, "weather_analysis")
 
     def log_user_destination_selection(self, available_destinations: List[str],
