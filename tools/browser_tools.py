@@ -5,8 +5,6 @@ from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 from unstructured.partition.html import partition_html
 from crewai import Agent, Task
-#from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
 from crewai import LLM
 
 class WebsiteInput(BaseModel):
@@ -32,7 +30,6 @@ class BrowserTools(BaseTool):
             content = [content[i:i + 8000] for i in range(0, len(content), 8000)]
             summaries = []
             
-            #llm = LLM(model="groq/deepseek-r1-distill-llama-70b")
             llm = LLM(model="gemini/gemini-2.0-flash")
             
             for chunk in content:

@@ -21,7 +21,7 @@ CrewAI simplifies the orchestration of role-playing AI agents. In VacAIgent, the
 
 To experience the VacAIgent app:
 
-- **Configure Environment**: Set up the environment variables for [Browseless](https://www.browserless.io/), [Serper](https://serper.dev/), and [OpenAI](https://openai.com/). Use the `secrets.example` as a guide to add your keys then move that file (`secrets.toml`) to `.streamlit/secrets.toml`.
+- **Configure Environment**: Set up the environment variables for [Browseless](https://www.browserless.io/), [Serper](https://serper.dev/), and [Google Gemini](https://ai.google.dev/). Use the `secrets.example.toml` as a guide to create your `.streamlit/secrets.toml` file, and use `.env.example` to create your `.env` file.
 
 - **Install Dependencies**: Execute `pip install -r requirements.txt` in your terminal.
 - **Launch the CLI Mode**: Run `python cli_app.py -o "Bangalore, India" -d "Krabi, Thailand" -s 2024-05-01 -e 2024-05-10 -i "2 adults who love swimming, dancing, hiking, shopping, food, water sports adventures, rock climbing"` to start the CLI Mode.
@@ -47,7 +47,7 @@ To switch LLMs from differnet Providers
 class TripAgents():
     def __init__(self, llm: BaseChatModel = None):
         if llm is None:
-            #self.llm = LLM(model="groq/deepseek-r1-distill-llama-70b")
+            # Using Gemini as the default LLM
             self.llm = LLM(model="gemini/gemini-2.0-flash")
         else:
             self.llm = llm
@@ -57,9 +57,9 @@ class TripAgents():
 
 
 
-### Integrating Ollama with CrewAI
+### Integrating Other LLM Providers with CrewAI
 
-Pass the Ollama model to agents in the CrewAI framework:
+You can also use other LLM providers with CrewAI. For example, to use Ollama with a local model:
 
 ```python
     agent = Agent(
@@ -67,6 +67,17 @@ Pass the Ollama model to agents in the CrewAI framework:
         goal='Process information using a local model',
         backstory="An AI assistant running on local hardware.",
         llm=LLM(model="ollama/llama3.2", base_url="http://localhost:11434")
+    )
+```
+
+Or to use OpenAI:
+
+```python
+    agent = Agent(
+        role='Travel Expert',
+        goal='Plan amazing trips',
+        backstory="An AI travel assistant.",
+        llm=LLM(model="gpt-4")
     )
 ```
 

@@ -4,7 +4,7 @@ from trip_tasks import TripTasks
 from datetime import datetime, timedelta
 import argparse
 from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
+from dotenv import load_dotenv
 import os
 
 
@@ -14,7 +14,6 @@ class TripCrew:
         self.origin = origin
         self.interests = interests
         self.date_range = date_range
-        #self.llm = LLM(model="groq/deepseek-r1-distill-llama-70b")
         self.llm = LLM(model="gemini/gemini-2.0-flash")
 
 
